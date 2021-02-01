@@ -4,14 +4,15 @@
 // File name: projects/01/Not.hdl
 
 /**
- * Not gate:
- * out = not in
- */
+* Not gate:
+* out = not in
+*/
 
 CHIP Not {
-    IN in;
-    OUT out;
+  IN in;
+  OUT out;
 
-    PARTS:
+  PARTS:
     // Put your code here:
+    Nand(a=in, b=in, out=out);
 }
