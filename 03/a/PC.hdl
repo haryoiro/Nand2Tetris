@@ -16,5 +16,16 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // 予め１加算したアドレスを作っておく
+    Inc16(in=outin, out=inca);
+
+    // 加算した値を使用するか out(t-1) の値を使用するか
+    Mux16(a=outin, b=inca, sel=inc, out=incout);
+    //　新たなアドレスを参照するか否か
+    Mux16(a=incout, b=in, sel=load, out=loadout);
+    // カウンタをリセットするか否か
+    Mux16(a=loadout, b=false, sel=reset, out=resetout);
+
+    // 必ず１加算されたアドレスが保存される。
+    Register(in=resetout, load=true, out=out, out=outin);
 }
