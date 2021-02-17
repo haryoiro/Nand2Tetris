@@ -20,15 +20,17 @@
 (LOOP)
   @i
   M=M-1
-  D=M       // RAM[i-1]
+  D=M       // D = RAM[i-1]
 
   @INIT
   D;JLT     // if i < 0 goto INIT
 
   @KBD
-  D=M
+  D=M       // D = @KBD
+
   @WHITE
   D;JEQ
+
   @BLACK
   D;JMP
 
