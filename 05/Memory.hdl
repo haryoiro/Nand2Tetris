@@ -22,10 +22,45 @@
  * Screen and Keyboard chip specifications given in the book.
  */
 
+
+/**
+ *  RAM    =        0011 1111 1111 1111
+ *  SCREEN = 0x4000 1000 0000 0000 0000
+ *                  1011 1111 1111 1111
+ *  KBD    = 0x6000 1100 0000 0000 0000
+*/
+
+//  *                {in, 0 , 0,  0} if sel == 00
+//  *                {0,  in, 0,  0} if sel == 01
+//  *                {0,  0,  in, 0} if sel == 10
+//  *                {0,  0,  0, in} if sel == 11
 CHIP Memory {
     IN in[16], load, address[15];
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+        // a = 0x0000 ~ 0x1fff
+        // b = 0x2000 ~ 0x3fff
+        // c = 0x4000 ~ 0x5fff
+        // d = 0x6000 ~ 0x7fff
+        DMux4Way(in=load, sel=address[13..14], a=loadMa, b=loadMb, c=loadS, d=loadK);
+        // if address[13..14] == 00 loadMa
+        // if address[13..14] == 01 loadMb
+        // if address[13..14] == 10 loadS
+        // if address[13..14] == 11 loadK
+        RAM16K(in=in, load=loadMa, address=address[0..13], out=outMa);
+        RAM16K(in=in, load=loadMb, address=address[0..13], out=outMb);
+        Screen(in=in, load=loadS, address=address[0..12], out=outS);
+
+        // アドレスが0x6000以上の場合isOver = 1
+        Or8Way(in=address[0..7], out=orA);
+        Or8Way(in[0..4]=address[8..12], in[5..6]=false, out=orB);
+        Or(a=orA, b=orB, out=isOver);
+
+        Keyboard(out=k1);
+
+        // outK = isOver ? false : keyboard
+        Mux16(a=k1, b=false, sel=isOver, out=outK);
+
+        Mux4Way16(a=outMa, b=outMb, c=outS, d=outK, sel=address[13..14], out=out);
 }
