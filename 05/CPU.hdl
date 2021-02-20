@@ -48,9 +48,6 @@ CHIP CPU {
     // d3 = M
     PARTS:
     Not(in=instruction[15], out=noti);
-    And(a=instruction[15], b=instruction[12], out=AorM);
-    And(a=instruction[15], b=instruction[4], out=loadD);
-    And(a=instruction[15], b=instruction[3], out=writeM);
 
     // ARegister
     Mux16(a=aluOut, b=instruction, sel=noti, out=AorC);
@@ -58,6 +55,7 @@ CHIP CPU {
     Or(a=noti, b=instruction[5], out=loadA);
     ARegister(in=AorC, load=loadA, out=outA, out[0..14]=addressM);
 
+    And(a=instruction[15], b=instruction[12], out=AorM);
     Mux16(a=outA, b=inM, sel=AorM, out=outAorM);
 
     ALU(x=outD, y=outAorM,
@@ -73,7 +71,10 @@ CHIP CPU {
     );
 
     // DRegister
+    And(a=instruction[15], b=instruction[4], out=loadD);
     DRegister(in=aluOut, load=loadD, out=outD);
+
+    And(a=instruction[15], b=instruction[3], out=writeM);
 
     And(a=ng, b=instruction[2], out=w1);
     And(a=zr, b=instruction[1], out=w2);
@@ -82,11 +83,10 @@ CHIP CPU {
     Not(in=minus, out=plus);
     And(a=plus, b=instruction[0], out=w3);
 
-    Or(a=w1, b=w2, out=or12);
-    Or(a=or12, b=w3, out=or123);
-    And(a=or123, b=instruction[15], out=inc);
-    Not(in=inc, out=isJMP);
+    Or(a=w1, b=w2, out=w12);
+    Or(a=w12, b=w3, out=w123);
+    And(a=w123, b=instruction[15], out=isJMP);
 
-    PC(in=outA, inc=inc, load=isJMP, reset=reset, out[0..14]=pc);
+    PC(in=outA, inc=true, load=isJMP, reset=reset, out[0..14]=pc);
 
 }
