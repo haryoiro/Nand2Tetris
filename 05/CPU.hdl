@@ -49,8 +49,8 @@ CHIP CPU {
     PARTS:
     Not(in=instruction[15], out=noti);
     And(a=instruction[15], b=instruction[12], out=AorM);
-    And(a=instruction[15], b=instruction[3], out=writeM);
     And(a=instruction[15], b=instruction[4], out=loadD);
+    And(a=instruction[15], b=instruction[3], out=writeM);
 
     // ARegister
     Mux16(a=aluOut, b=instruction, sel=noti, out=AorC);
@@ -75,70 +75,18 @@ CHIP CPU {
     // DRegister
     DRegister(in=aluOut, load=loadD, out=outD);
 
-    // instrucion[2] = 0
-    // And(a=zr, b=instruction[2], out=ozr);
-
-
-    // DMux8Way(in=true, sel[0]=j1, sel[1]=j2, sel[2]=j3,a=null,b=jgt,c=jeq,d=jge,e=jlt,f=jne,g=jle,h=jmp);
-
-
-
-    // JMP
-    // DMux8Way(in=true, sel[0]=j1, sel[1]=j2, sel[2]=j3,a=null,b=jgt,c=jeq,d=jge,e=jlt,f=jne,g=jle,h=jmp);
-    // DMux8Way(in=true, sel[0]=instruction[2],sel[1]=instruction[1], sel[2]=instruction[0],a=inull,b=ijgt,c=ijeq,d=ijge,e=ijlt,f=ijne,g=ijle,h=ijmp);
-    // And(a=null, b=inull, out=onull);
-    // And(a=jgt, b=ijgt, out=ojgt);
-    // And(a=jeq, b=ijeq, out=ojeq);
-    // And(a=jge, b=ijge, out=ojge);
-    // And(a=jlt, b=ijlt, out=ojlt);
-    // And(a=jne, b=ijne, out=ojne);
-    // And(a=jle, b=ijle, out=ojle);
-    // And(a=jmp, b=ijmp, out=ojmp);
-
-    // Or8Way(
-    //     in[0]=onull,
-    //     in[1]=ojgt,
-    //     in[2]=ojeq,
-    //     in[3]=ojge,
-    //     in[4]=ojlt,
-    //     in[5]=ojne,
-    //     in[6]=ojle,
-    //     in[7]=ojmp,
-    //     out=ojr);
-
-    // And(a=j1, b=instruction[2], out=outj1);
-    // And(a=j2, b=instruction[1], out=outj2);
-
-    // Not(in=j1, out=j3); // 1 jgt, jge, jlt, jle
-    //                     // 0 null, jeq, jne, jmp
-    // And(a=j3, b=instrucion[0], out=outj3);
-
-    // And(a=outj2, b=outj3, out=bjmp); // ((j1 == j3) && j2)
-
-    And(a=ng, b=instrucion[2], out=w1);
-    And(a=zr, b=instrucion[1], out=w2);
+    And(a=ng, b=instruction[2], out=w1);
+    And(a=zr, b=instruction[1], out=w2);
 
     Or(a=zr, b=ng, out=minus);
     Not(in=minus, out=plus);
-    And(a=plus, b=instrucion[0], out=w3);
+    And(a=plus, b=instruction[0], out=w3);
 
     Or(a=w1, b=w2, out=or12);
     Or(a=or12, b=w3, out=or123);
-    And(a=or123, b=instrucion[15], out=inc);
+    And(a=or123, b=instruction[15], out=inc);
     Not(in=inc, out=isJMP);
 
     PC(in=outA, inc=inc, load=isJMP, reset=reset, out[0..14]=pc);
 
-    // // 次のアドレス
-    // PC(in=outA, load=reset, inc=, reset=reset, out=pc);
-
-    // let regA = ARegister.in(inM)
-    // let regD = DRegister.in(regD)
-
-    // const inAlu = (!!instruction[15]) ? inM : regD
-
-    // ALU(x=inAlu, y=regA, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=regD, out=outM zr=j2, ng=j1);
-
-
-    // PC(in=regA, load=reset, )
 }
